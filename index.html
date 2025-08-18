@@ -1,281 +1,371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>9M2PJU Generator Load Calculator</title>
-  <meta name="description" content="9M2PJU Generator Load Calculator helps estimate generator size based on appliances, load factors, and peak demand. Built for Malaysian users.">
-  <meta name="keywords" content="Generator Load Calculator, Malaysia, 9M2PJU, Ham Radio, Power Factor, kVA, kW, Electrical Loads">
+  <meta name="description" content="9M2PJU Generator Load Calculator: choose generator type & kVA, cable, loads and fuel to estimate peak kVA, loading %, cable suitability and runtime." />
+  <meta name="keywords" content="9M2PJU, Generator Load Calculator, kVA, kW, fuel runtime, cable sizing, Malaysia, ham radio" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    /* Global */
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #333;
+    :root{
+      --primary:#4f46e5; --primary-2:#4338ca; --success:#22c55e; --danger:#ef4444;
+      --bg:#f3f4f6; --card:#ffffff; --muted:#6b7280; --text:#0f172a;
+      --radius:14px;
     }
-    .container {
-      max-width: 1000px;
-      margin: auto;
-      padding: 1.5rem;
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      font-family:'Inter',system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      background:linear-gradient(135deg,#667eea,#764ba2);
+      min-height:100vh; color:var(--text);
     }
-    h1 {
-      text-align: center;
-      color: white;
-      margin-bottom: 1rem;
+    .wrap{max-width:1100px;margin:0 auto;padding:20px}
+    header h1{color:#fff;text-align:center;margin:8px 0 18px;font-size:clamp(1.4rem,3vw,2rem)}
+    .grid{
+      display:grid; gap:16px;
+      grid-template-columns:repeat(12,minmax(0,1fr));
     }
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 1.5rem;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    .card{
+      grid-column:span 12;
+      background:var(--card); border-radius:var(--radius);
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
+      padding:18px;
     }
-    h2 {
-      margin-bottom: 1rem;
-      font-size: 1.2rem;
-      color: #444;
+    @media (min-width:900px){
+      .col-6{grid-column:span 6}
+      .col-4{grid-column:span 4}
+      .col-8{grid-column:span 8}
     }
-
+    h2{margin:0 0 12px;font-size:1.05rem;color:#111827}
+    .row{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
+    .control{grid-column:span 12}
+    @media(min-width:640px){ .c6{grid-column:span 6} .c4{grid-column:span 4} .c3{grid-column:span 3}}
+    label{display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:6px}
+    input,select{
+      width:100%; padding:12px 12px; border-radius:10px; border:1px solid #e5e7eb;
+      font-size:.95rem; outline:none; background:#f9fafb;
+    }
+    input:focus,select:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+    .muted{color:var(--muted); font-size:.85rem}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--primary); color:#fff; border:none; border-radius:10px;
+      padding:12px 16px; font-weight:700; cursor:pointer; transition:.2s;
+    }
+    .btn:hover{background:var(--primary-2); transform:translateY(-1px)}
+    .btn.secondary{background:#0ea5e9}
+    .btn.ghost{background:#eef2ff; color:#111827}
+    .notice{padding:10px 12px; border-radius:10px; background:#f3f4f6; font-size:.9rem}
+    .notice.success{background:#ecfdf5; color:#065f46}
+    .notice.danger{background:#fef2f2; color:#991b1b}
     /* Loads */
-    #loads-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    #loadsContainer{display:flex; flex-direction:column; gap:12px}
+    .load-card{
+      position:relative; background:#fafbff; border:1px solid #e5e7eb; border-radius:12px; padding:12px;
     }
-    .load-card {
-      background: #fafafa;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      position: relative;
+    .load-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+    .load-head .title{font-weight:700; color:#111827}
+    .remove-btn{
+      background:transparent; border:none; color:#6b7280; font-size:20px; cursor:pointer;
     }
-    .load-card h3 {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .remove-btn:hover{color:var(--danger)}
+    .load-fields{display:grid; gap:10px; grid-template-columns:repeat(12,1fr)}
+    .load-fields .control{grid-column:span 12}
+    @media(min-width:640px){
+      .load-fields .c3{grid-column:span 3} .load-fields .c4{grid-column:span 4}
     }
-    .load-fields {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 0.75rem;
-    }
-    .load-fields label {
-      display: block;
-      font-size: 0.8rem;
-      margin-bottom: 0.25rem;
-      color: #555;
-    }
-    .load-fields input, .load-fields select {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.9rem;
-    }
-    .load-total {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #444;
-    }
-    .remove-load {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: transparent;
-      border: none;
-      color: #888;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
-    .remove-load:hover {
-      color: #e74c3c;
-    }
-    .btn-add {
-      margin-top: 1rem;
-      background: #4f46e5;
-      color: white;
-      font-size: 0.95rem;
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-add:hover {
-      background: #4338ca;
-    }
-
+    .load-total{margin-top:6px; font-weight:600; color:#334155}
     /* Results */
-    #results {
-      background: #f9fafb;
-      border-radius: 10px;
-      padding: 1rem;
-      box-shadow: inset 0 1px 4px rgba(0,0,0,0.08);
-    }
-    #results h3 {
-      margin-bottom: 0.5rem;
-    }
-    .result-line {
-      font-size: 0.95rem;
-      margin: 0.25rem 0;
-    }
-
-    /* Footer */
-    footer {
-      text-align: center;
-      color: white;
-      padding: 1rem 0;
-      font-size: 0.9rem;
-    }
-    footer a {
-      color: #ffdf00;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    footer a:hover {
-      text-decoration: underline;
-    }
+    #resultsBox .line{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #e5e7eb}
+    #resultsBox .line:last-child{border-bottom:0}
+    .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.75rem; font-weight:700}
+    .tag.good{background:#dcfce7; color:#166534} .tag.bad{background:#fee2e2; color:#991b1b}
+    footer{color:#fff; text-align:center; padding:18px 10px}
+    footer a{color:#ffdf00; font-weight:800; text-decoration:none}
+    footer a:hover{text-decoration:underline}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>9M2PJU Generator Load Calculator</h1>
+  <div class="wrap">
+    <header>
+      <h1>9M2PJU Generator Load Calculator</h1>
+    </header>
 
-    <!-- Loads Section -->
-    <section class="card">
-      <h2>⚡ Loads</h2>
-      <div id="loads-container"></div>
-      <button id="add-load" class="btn-add">➕ Add Load</button>
-    </section>
-
-    <!-- Results Section -->
-    <section class="card">
-      <h2>📊 Results</h2>
-      <div id="results">
-        <h3>Calculation Output:</h3>
-        <div id="results-content"></div>
-      </div>
-    </section>
-  </div>
-
-  <footer>
-    🇲🇾 Made for Malaysia by <a href="https://hamradio.my" target="_blank">9M2PJU</a>
-  </footer>
-
-  <script>
-    const loadPresets = {
-      "lamp": { name: "💡 Lighting", unitPower: 20, factor: 1 },
-      "socket": { name: "🔌 Socket Outlet", unitPower: 500, factor: 1 },
-      "pc": { name: "🖥 Office Equipment", unitPower: 200, factor: 1 },
-      "ac": { name: "❄ Air Conditioner (1.5HP)", unitPower: 1100, factor: 3 },
-      "motor": { name: "🛠 Motor (1HP)", unitPower: 750, factor: 3.5 },
-      "custom": { name: "✏ Custom", unitPower: 0, factor: 1 }
-    };
-
-    function createLoadCard() {
-      const card = document.createElement("div");
-      card.className = "load-card";
-
-      card.innerHTML = `
-        <button class="remove-load">✖</button>
-        <h3>⚡ Load</h3>
-        <div class="load-fields">
-          <div>
-            <label>Type</label>
-            <select class="load-type">
-              ${Object.entries(loadPresets).map(([key, val]) => `
-                <option value="${key}">${val.name}</option>
-              `).join("")}
+    <section class="grid">
+      <!-- Generator -->
+      <div class="card col-6">
+        <h2>1) Generator</h2>
+        <div class="row">
+          <div class="control c6">
+            <label for="genType">Generator Type</label>
+            <select id="genType">
+              <option value="diesel">Diesel</option>
+              <option value="petrol">Petrol</option>
+              <option value="gas">Natural Gas</option>
+              <option value="hybrid">Hybrid/Inverter</option>
+            </select>
+            <div class="muted">Used for fuel estimate if burn rate is empty.</div>
+          </div>
+          <div class="control c6">
+            <label for="genKVA">Generator Rating (kVA)</label>
+            <select id="genKVA">
+              <option>3</option><option>5</option><option>7.5</option><option>10</option>
+              <option>12</option><option>15</option><option>20</option><option>25</option>
+              <option>30</option><option>40</option><option>50</option><option>60</option>
+              <option>80</option><option>100</option><option>150</option><option>200</option>
             </select>
           </div>
-          <div>
-            <label>Quantity</label>
-            <input type="number" class="load-qty" min="1" value="1">
+          <div class="control c4">
+            <label for="pf">Power Factor (PF)</label>
+            <input type="number" id="pf" min="0.5" max="1" step="0.05" value="0.8"/>
           </div>
-          <div>
-            <label>Unit Power (W)</label>
-            <input type="number" class="load-power">
+          <div class="control c4">
+            <label for="fuelAvailable">Fuel Available (L)</label>
+            <input type="number" id="fuelAvailable" min="0" step="0.1" placeholder="e.g. 40"/>
           </div>
-          <div>
-            <label>Starting Factor</label>
-            <input type="number" class="load-factor" step="0.1">
+          <div class="control c4">
+            <label for="burn100">Fuel Burn @100% Load (L/h)</label>
+            <input type="number" id="burn100" min="0" step="0.1" placeholder="Leave blank to auto-estimate"/>
+          </div>
+          <div class="control">
+            <div id="fuelHint" class="muted">If blank, fuel burn will be auto-estimated from type & kVA.</div>
           </div>
         </div>
-        <div class="load-total">Total: 0 W</div>
+      </div>
+
+      <!-- Cable -->
+      <div class="card col-6">
+        <h2>2) Cable</h2>
+        <div class="row">
+          <div class="control c6">
+            <label for="cableMat">Material</label>
+            <select id="cableMat">
+              <option value="cu">Copper (Cu)</option>
+              <option value="al">Aluminium (Al)</option>
+            </select>
+          </div>
+          <div class="control c6">
+            <label for="cableSize">Cross-Section (mm²)</label>
+            <select id="cableSize">
+              <option>6</option><option>10</option><option>16</option><option>25</option>
+              <option>35</option><option>50</option><option>70</option><option>95</option><option>120</option>
+            </select>
+          </div>
+          <div class="control">
+            <div class="muted">Ampacity is a simple rule-of-thumb (single-phase, typical install). Always verify with local codes.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loads -->
+      <div class="card col-8">
+        <h2>3) Loads</h2>
+        <div id="loadsContainer"></div>
+        <button class="btn" id="addLoadBtn">➕ Add Load</button>
+        <div id="liveTotals" class="notice" style="margin-top:10px">Add loads to see running & starting totals.</div>
+      </div>
+
+      <!-- Calculate / Results -->
+      <div class="card col-4">
+        <h2>4) Calculate & Results</h2>
+        <button class="btn secondary" id="calcBtn">🚀 Calculate</button>
+        <div id="resultsBox" style="margin-top:12px">
+          <div class="notice">Results will appear here.</div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      🇲🇾 Made for Malaysia by <a href="https://hamradio.my" target="_blank" rel="noopener">9M2PJU</a>
+    </footer>
+  </div>
+
+  <script>
+    // ------- Cable ampacity (very rough, single run, ambient/typical) -------
+    const AMPACITY = {
+      cu: {6:32,10:45,16:60,25:80,35:100,50:125,70:160,95:195,120:230},
+      al: {10:35,16:45,25:60,35:75,50:95,70:120,95:150,120:175}
+    };
+
+    // ------- Fuel burn auto-estimate per kWh (rough heuristics) ------------
+    // These are approximate L/kWh at full load. Used only when user leaves burn100 empty.
+    const L_PER_KWH = { diesel:0.25, petrol:0.35, gas:0.30, hybrid:0.23 };
+
+    // ------- Loads presets --------------------------------------------------
+    const PRESETS = {
+      light: { label:"💡 Lighting", unitW:20, factor:1 },
+      socket:{ label:"🔌 Socket Outlet", unitW:500, factor:1 },
+      pc:    { label:"🖥 Office Equip.", unitW:200, factor:1 },
+      ac:    { label:"❄ Air Conditioner (1.5HP)", unitW:1100, factor:3 },
+      motor: { label:"⚙ Motor (1HP)", unitW:750, factor:3.5 },
+      custom:{ label:"✏ Custom", unitW:0, factor:1 }
+    };
+
+    const loadsContainer = document.getElementById('loadsContainer');
+    const addLoadBtn = document.getElementById('addLoadBtn');
+    const calcBtn = document.getElementById('calcBtn');
+    const resultsBox = document.getElementById('resultsBox');
+    const liveTotals = document.getElementById('liveTotals');
+
+    addLoadBtn.addEventListener('click', () => loadsContainer.appendChild(makeLoadCard()));
+    // Start with one default card
+    loadsContainer.appendChild(makeLoadCard());
+
+    function makeLoadCard(){
+      const card = document.createElement('div');
+      card.className = 'load-card';
+      card.innerHTML = `
+        <div class="load-head">
+          <div class="title">Load</div>
+          <button class="remove-btn" title="Remove">×</button>
+        </div>
+        <div class="load-fields">
+          <div class="control c4">
+            <label>Type</label>
+            <select class="type">
+              ${Object.entries(PRESETS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="control c3">
+            <label>Quantity</label>
+            <input type="number" class="qty" min="1" value="1">
+          </div>
+          <div class="control c3">
+            <label>Unit Power (W)</label>
+            <input type="number" class="unit" min="0" step="1">
+          </div>
+          <div class="control c3">
+            <label>Starting Factor</label>
+            <input type="number" class="sf" min="1" step="0.1">
+          </div>
+          <div class="control">
+            <div class="load-total muted">—</div>
+          </div>
+        </div>
       `;
+      const type = card.querySelector('.type');
+      const qty = card.querySelector('.qty');
+      const unit = card.querySelector('.unit');
+      const sf = card.querySelector('.sf');
+      const total = card.querySelector('.load-total');
+      const removeBtn = card.querySelector('.remove-btn');
 
-      // Remove
-      card.querySelector(".remove-load").addEventListener("click", () => {
-        card.remove();
-        updateResults();
-      });
-
-      // Inputs
-      const typeSelect = card.querySelector(".load-type");
-      const qtyInput = card.querySelector(".load-qty");
-      const powerInput = card.querySelector(".load-power");
-      const factorInput = card.querySelector(".load-factor");
-      const totalDisplay = card.querySelector(".load-total");
-
-      function updateFromPreset() {
-        const preset = loadPresets[typeSelect.value];
-        powerInput.value = preset.unitPower;
-        factorInput.value = preset.factor;
-        updateTotal();
+      function syncPreset(){
+        const p = PRESETS[type.value];
+        unit.value = p.unitW;
+        sf.value = p.factor;
+        recalc();
       }
-
-      function updateTotal() {
-        const qty = parseFloat(qtyInput.value) || 0;
-        const power = parseFloat(powerInput.value) || 0;
-        const factor = parseFloat(factorInput.value) || 1;
-        const total = qty * power;
-        totalDisplay.textContent = 
-          `Total: ${total} W (Peak: ${(total * factor).toFixed(1)} W)`;
-        updateResults();
+      function recalc(){
+        const q = +qty.value||0, u = +unit.value||0, f = +sf.value||1;
+        const runW = q*u;
+        const startW = runW*f;
+        total.textContent = `Total: ${runW.toFixed(0)} W (Peak: ${startW.toFixed(0)} W)`;
+        updateLiveTotals();
       }
+      type.addEventListener('change', syncPreset);
+      [qty,unit,sf].forEach(el=>el.addEventListener('input', recalc));
+      removeBtn.addEventListener('click', ()=>{ card.remove(); updateLiveTotals(); });
 
-      typeSelect.addEventListener("change", updateFromPreset);
-      [qtyInput, powerInput, factorInput].forEach(input =>
-        input.addEventListener("input", updateTotal)
-      );
-
-      updateFromPreset();
+      syncPreset();
       return card;
     }
 
-    function updateResults() {
-      const loadCards = document.querySelectorAll(".load-card");
-      let totalRunning = 0;
-      let totalPeak = 0;
-
-      loadCards.forEach(card => {
-        const qty = parseFloat(card.querySelector(".load-qty").value) || 0;
-        const power = parseFloat(card.querySelector(".load-power").value) || 0;
-        const factor = parseFloat(card.querySelector(".load-factor").value) || 1;
-        totalRunning += qty * power;
-        totalPeak += qty * power * factor;
+    function sumLoads(){
+      let runW=0, peakW=0;
+      document.querySelectorAll('.load-card').forEach(card=>{
+        const q = +(card.querySelector('.qty')?.value||0);
+        const u = +(card.querySelector('.unit')?.value||0);
+        const f = +(card.querySelector('.sf')?.value||1);
+        runW += q*u;
+        peakW += q*u*f;
       });
+      return { runW, peakW, runKW: runW/1000, peakKVA: peakW/1000 }; // assuming PF≈1 on peak VA from factors
+    }
 
-      const resultsDiv = document.getElementById("results-content");
-      resultsDiv.innerHTML = `
-        <div class="result-line">Total Running Load: <strong>${totalRunning} W</strong></div>
-        <div class="result-line">Estimated Peak Load: <strong>${totalPeak.toFixed(1)} W</strong></div>
-        <div class="result-line">Recommended Generator Size: <strong>${(totalPeak/1000).toFixed(2)} kVA</strong></div>
+    function updateLiveTotals(){
+      const { runW, peakW } = sumLoads();
+      if(runW<=0){
+        liveTotals.textContent = 'Add loads to see running & starting totals.';
+      }else{
+        liveTotals.innerHTML = `Running: <b>${runW.toFixed(0)} W</b> — Peak: <b>${peakW.toFixed(0)} W</b>`;
+      }
+    }
+
+    calcBtn.addEventListener('click', calculate);
+
+    function calculate(){
+      const genType = document.getElementById('genType').value;
+      const genKVA  = +(document.getElementById('genKVA').value||0);
+      const pf      = Math.min(1, Math.max(0.5, +(document.getElementById('pf').value||0.8)));
+      const fuelL   = +(document.getElementById('fuelAvailable').value||0);
+      let burn100   = +(document.getElementById('burn100').value||0);
+
+      const cableMat= document.getElementById('cableMat').value;
+      const cableSz = +(document.getElementById('cableSize').value||0);
+
+      const { runKW, peakKVA } = sumLoads();
+
+      // Generator loading (% based on apparent power)
+      const loadPct = genKVA>0 ? Math.min(1, peakKVA/genKVA) : 0;
+
+      // Cable check (single-phase approx): I = P / (V * PF)
+      const V = 230;
+      const runA = (runKW*1000)/(V*pf || 0.8);
+      const ampacity = (AMPACITY[cableMat] && AMPACITY[cableMat][cableSz]) ? AMPACITY[cableMat][cableSz] : null;
+
+      // Fuel burn: if not given, estimate from genType, pf & generator kVA at 100%
+      // Assume usable kW at 100% ~ genKVA * PF; L/h = kW * L/kWh
+      if(!burn100 || burn100<=0){
+        const kWfull = genKVA * pf;
+        const lpkwh = L_PER_KWH[genType] ?? 0.28;
+        burn100 = kWfull * lpkwh; // L/h @100%
+      }
+      // Runtime at current load
+      const burnAtLoad = burn100 * (loadPct || (runKW/(genKVA*pf || 1))); // fallback to running kW ratio if needed
+      const runtimeH = (fuelL>0 && burnAtLoad>0) ? (fuelL / burnAtLoad) : 0;
+
+      // Compose results
+      const lines = [];
+      lines.push(line('Total Running Load', `${runKW.toFixed(2)} kW`));
+      lines.push(line('Peak Apparent Load', `${peakKVA.toFixed(2)} kVA`));
+      lines.push(line('Generator Rating', `${genKVA.toFixed(2)} kVA`));
+      lines.push(line('Power Factor (PF)', pf.toFixed(2)));
+      lines.push(line('Generator Loading', `${(loadPct*100).toFixed(1)} %`,
+        peakKVA<=genKVA ? 'good':'bad'));
+      if(ampacity){
+        lines.push(line('Cable Ampacity', `${ampacity} A`));
+        lines.push(line('Estimated Running Current', `${runA.toFixed(1)} A`,
+          runA<=ampacity ? 'good':'bad'));
+      }else{
+        lines.push(`<div class="notice danger">Unknown ampacity for ${cableMat.toUpperCase()} ${cableSz} mm²</div>`);
+      }
+      lines.push(line('Fuel Available', `${fuelL.toFixed(1)} L`));
+      lines.push(line('Fuel Burn @100% load', `${burn100.toFixed(2)} L/h`));
+      lines.push(line('Fuel Burn @current load', `${burnAtLoad.toFixed(2)} L/h`));
+      lines.push(line('Estimated Runtime', runtimeH>0 ? `${runtimeH.toFixed(1)} h` : '—',
+        runtimeH>=2 ? 'good' : (runtimeH>0 ? 'bad' : undefined)));
+
+      resultsBox.innerHTML = `
+        <div class="line">${lines.join('</div><div class="line">')}</div>
+        ${peakKVA>genKVA ? warn('Generator is undersized for peak demand. Consider a larger kVA or staggering starts.') : ok('Generator capacity is sufficient for the calculated peak.')}
+        ${(ampacity && runA>ampacity) ? warn('Cable appears undersized for running current. Consider upsizing or parallel runs.') : ''}
+        ${(fuelL>0 && runtimeH<2) ? warn('Runtime is short. Add fuel or reduce load to extend operation.') : ''}
+        <div class="muted" style="margin-top:10px">Notes: Peak kVA uses starting factors; current & ampacity are simplified single-phase estimates. Verify with local standards/codes.</div>
       `;
     }
 
-    // Add Load Button
-    document.getElementById("add-load").addEventListener("click", () => {
-      const container = document.getElementById("loads-container");
-      container.appendChild(createLoadCard());
-    });
-
-    // Start with one load by default
-    document.getElementById("loads-container").appendChild(createLoadCard());
+    function line(label, value, tag){
+      const badge = tag ? `<span class="tag ${tag==='good'?'good':'bad'}">${tag==='good'?'OK':'Check'}</span>` : '';
+      return `<div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
+        <span>${label}</span>
+        <span><b>${value}</b> ${badge}</span>
+      </div>`;
+    }
+    function warn(msg){ return `<div class="notice danger" style="margin-top:8px">⚠ ${msg}</div>`; }
+    function ok(msg){ return `<div class="notice success" style="margin-top:8px">✅ ${msg}</div>`; }
   </script>
 </body>
 </html>
