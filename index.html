@@ -1,49 +1,265 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>9M2PJU Generator Load Calculator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>9M2PJU Generator Load Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+    input, select, button {
+      padding: 8px;
+      font-size: 1rem;
+      margin-right: 6px;
+    }
+    input, select {
+      width: calc(100% - 10px);
+      margin-bottom: 8px;
+    }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+    }
+    #add-load, #calculate-btn {
+      background: #007bff;
+      color: white;
+      padding: 10px 16px;
+      margin-top: 10px;
+    }
+    .remove-load {
+      background: #dc3545;
+      color: white;
+      padding: 6px 12px;
+      margin-top: 6px;
+    }
+    .load {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f1f1f1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    .ok { color: green; font-weight: bold; }
+    .fail { color: red; font-weight: bold; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>9M2PJU Generator Load Calculator</h1>
+  <div class="container">
+    <h1>9M2PJU Generator Load Calculator</h1>
 
-        <div class="form-container">
-            <h2>Generator Details</h2>
-            <div class="form-group">
-                <label for="generator-kva">Generator kVA:</label>
-                <input type="number" id="generator-kva" placeholder="Enter generator kVA">
-            </div>
-            <div class="form-group">
-                <label for="cable-type">Type of Cable Used:</label>
-                <input type="text" id="cable-type" placeholder="Enter cable type">
-            </div>
-            <div class="form-group">
-                <label for="fuel-amount">Amount of Fuel (liters):</label>
-                <input type="number" id="fuel-amount" placeholder="Enter fuel amount">
-            </div>
-            <div class="form-group">
-                <label for="generator-runtime">Generator Runtime (hours):</label>
-                <input type="number" id="generator-runtime" placeholder="Enter runtime in hours">
-            </div>
+    <div class="form-container">
+      <h2>Generator Details</h2>
+      <div class="form-group">
+        <label for="generator-kva">Generator kVA:</label>
+        <input type="number" id="generator-kva" placeholder="Enter generator kVA">
+      </div>
+      <div class="form-group">
+        <label for="cable-type">Cable Type:</label>
+        <select id="cable-type">
+          <option value="">-- Select Cable Type --</option>
+          <option value="2.5" data-ampacity="20">2.5mm² Copper (20A)</option>
+          <option value="4" data-ampacity="25">4mm² Copper (25A)</option>
+          <option value="6" data-ampacity="32">6mm² Copper (32A)</option>
+          <option value="10" data-ampacity="45">10mm² Copper (45A)</option>
+          <option value="16" data-ampacity="60">16mm² Copper (60A)</option>
+        </select>
+        <input type="number" id="cable-length" placeholder="Cable Length (m)">
+      </div>
+      <div class="form-group">
+        <label for="fuel-amount">Fuel Available (liters):</label>
+        <input type="number" id="fuel-amount" placeholder="Enter fuel amount">
+      </div>
+      <div class="form-group">
+        <label for="generator-runtime">Expected Runtime (hours):</label>
+        <input type="number" id="generator-runtime" placeholder="Enter runtime (optional)">
+      </div>
 
-            <h2>Loads</h2>
-            <div id="loads-container">
-                <!-- Loads will be added here dynamically -->
-            </div>
-            <button id="add-load">Add Load</button>
+      <h2>Loads</h2>
+      <div id="loads-container"></div>
+      <button id="add-load">Add Load</button>
 
-            <button id="calculate-btn">Calculate</button>
-        </div>
-
-        <div id="results-container">
-            <h2>Results</h2>
-            <p id="results-output"></p>
-        </div>
+      <br><br>
+      <button id="calculate-btn">Calculate</button>
     </div>
 
-    <script src="script.js"></script>
+    <div id="results-container">
+      <h2>Results</h2>
+      <div id="results-output"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const generatorKvaInput = document.getElementById('generator-kva');
+      const cableTypeInput = document.getElementById('cable-type');
+      const cableLengthInput = document.getElementById('cable-length');
+      const fuelAmountInput = document.getElementById('fuel-amount');
+      const generatorRuntimeInput = document.getElementById('generator-runtime');
+      const loadsContainer = document.getElementById('loads-container');
+      const addLoadBtn = document.getElementById('add-load');
+      const calculateBtn = document.getElementById('calculate-btn');
+      const resultsOutput = document.getElementById('results-output');
+
+      let loadCount = 0;
+
+      const commonLoads = [
+        { id: "lamp-100", name: "Lamp (100W)", power: 0.1, factor: 1 },
+        { id: "fan-100", name: "Fan (100W)", power: 0.1, factor: 1 },
+        { id: "socket-500", name: "Socket Outlet (500W)", power: 0.5, factor: 1 },
+        { id: "ac-1hp", name: "Air Conditioner (1HP)", power: 0.75, factor: 3 },
+        { id: "ac-2hp", name: "Air Conditioner (2HP)", power: 1.5, factor: 3 },
+        { id: "fridge", name: "Refrigerator", power: 0.2, factor: 3 },
+        { id: "pump-500", name: "Water Pump (500W)", power: 0.5, factor: 4 },
+        { id: "custom", name: "Custom Load", power: 0, factor: 1 }
+      ];
+
+      // Add Load
+      addLoadBtn.addEventListener('click', () => {
+        loadCount++;
+        const loadDiv = document.createElement('div');
+        loadDiv.classList.add('load');
+        loadDiv.id = `load-${loadCount}`;
+
+        const selectOptions = commonLoads.map(l => `<option value="${l.id}" data-power="${l.power}" data-factor="${l.factor}">${l.name}</option>`).join("");
+
+        loadDiv.innerHTML = `
+          <label>Load #${loadCount}</label>
+          <select class="load-type">${selectOptions}</select>
+          <input type="number" class="load-power" placeholder="Power (kW)">
+          <input type="number" class="load-factor" placeholder="Starting Factor">
+          <button class="remove-load">Remove</button>
+        `;
+
+        loadsContainer.appendChild(loadDiv);
+
+        const typeSelect = loadDiv.querySelector('.load-type');
+        const powerInput = loadDiv.querySelector('.load-power');
+        const factorInput = loadDiv.querySelector('.load-factor');
+
+        // Autofill based on preset
+        typeSelect.addEventListener('change', () => {
+          const opt = typeSelect.selectedOptions[0];
+          powerInput.value = opt.dataset.power || "";
+          factorInput.value = opt.dataset.factor || 1;
+        });
+
+        // Remove button
+        loadDiv.querySelector('.remove-load').addEventListener('click', () => {
+          loadDiv.remove();
+        });
+      });
+
+      // Calculate
+      calculateBtn.addEventListener('click', () => {
+        const generatorKva = parseFloat(generatorKvaInput.value) || 0;
+        if (generatorKva === 0) {
+          resultsOutput.innerHTML = '<p style="color:red;">Please enter generator kVA.</p>';
+          return;
+        }
+
+        const loads = document.querySelectorAll('.load');
+        if (loads.length === 0) {
+          resultsOutput.innerHTML = '<p style="color:red;">Please add at least one load.</p>';
+          return;
+        }
+
+        let totalConstantPower = 0;
+        let allLoads = [];
+
+        loads.forEach(load => {
+          const power = parseFloat(load.querySelector('.load-power').value) || 0;
+          const factor = parseFloat(load.querySelector('.load-factor').value) || 1;
+          const startingPower = power * factor;
+
+          if (power > 0) {
+            allLoads.push({ power, startingPower });
+            totalConstantPower += power;
+          }
+        });
+
+        if (totalConstantPower === 0) {
+          resultsOutput.innerHTML = '<p style="color:red;">Please enter valid load power values.</p>';
+          return;
+        }
+
+        let maxRequiredKw = totalConstantPower;
+        if (allLoads.length > 0) {
+          let maxStartingPowerLoad = allLoads.sort((a, b) => b.startingPower - a.startingPower)[0];
+          let runningPowerOfOtherLoads = totalConstantPower - maxStartingPowerLoad.power;
+          maxRequiredKw = maxStartingPowerLoad.startingPower + runningPowerOfOtherLoads;
+        }
+
+        const safetyMargin = 1.10;
+        const powerFactor = 0.8;
+        const requiredKwWithMargin = maxRequiredKw * safetyMargin;
+        const requiredKva = requiredKwWithMargin / powerFactor;
+
+        // Fuel calculation
+        const fuel = parseFloat(fuelAmountInput.value) || 0;
+        const fuelConsumptionPerHour = maxRequiredKw * 0.25; // approx L/h
+        const estimatedRuntime = fuel > 0 ? (fuel / fuelConsumptionPerHour).toFixed(1) : "N/A";
+
+        // Cable check
+        let cableMessage = "";
+        const cableOpt = cableTypeInput.selectedOptions[0];
+        if (cableOpt) {
+          const ampacity = parseFloat(cableOpt.dataset.ampacity) || 0;
+          const loadCurrent = (totalConstantPower * 1000) / (230 * powerFactor); // single phase current
+          cableMessage = loadCurrent > ampacity ? `<span class="fail">Cable undersized! Load current = ${loadCurrent.toFixed(1)} A, Ampacity = ${ampacity} A</span>` :
+            `<span class="ok">Cable OK. Load current = ${loadCurrent.toFixed(1)} A, Ampacity = ${ampacity} A</span>`;
+        }
+
+        // Output as table
+        resultsOutput.innerHTML = `
+          <table>
+            <tr><th>Total Constant Load</th><td>${totalConstantPower.toFixed(2)} kW</td></tr>
+            <tr><th>Peak Required Load</th><td>${maxRequiredKw.toFixed(2)} kW</td></tr>
+            <tr><th>Required Generator Size</th><td>${requiredKva.toFixed(2)} kVA</td></tr>
+            <tr><th>Fuel Consumption</th><td>${fuelConsumptionPerHour.toFixed(2)} L/h</td></tr>
+            <tr><th>Estimated Runtime</th><td>${estimatedRuntime} hours (with ${fuel} L)</td></tr>
+            <tr><th>Cable Check</th><td>${cableMessage}</td></tr>
+            <tr><th>Generator Status</th><td>${generatorKva >= requiredKva ? '<span class="ok">✅ Generator is sufficient</span>' : '<span class="fail">❌ Undersized generator</span>'}</td></tr>
+          </table>
+        `;
+      });
+    });
+  </script>
 </body>
 </html>
