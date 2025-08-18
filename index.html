@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>9M2PJU Generator Load Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>9M2PJU Generator Load Calculator</h1>
+
+        <div class="form-container">
+            <h2>Generator Details</h2>
+            <div class="form-group">
+                <label for="generator-kva">Generator kVA:</label>
+                <input type="number" id="generator-kva" placeholder="Enter generator kVA">
+            </div>
+            <div class="form-group">
+                <label for="cable-type">Type of Cable Used:</label>
+                <input type="text" id="cable-type" placeholder="Enter cable type">
+            </div>
+            <div class="form-group">
+                <label for="fuel-amount">Amount of Fuel (liters):</label>
+                <input type="number" id="fuel-amount" placeholder="Enter fuel amount">
+            </div>
+            <div class="form-group">
+                <label for="generator-runtime">Generator Runtime (hours):</label>
+                <input type="number" id="generator-runtime" placeholder="Enter runtime in hours">
+            </div>
+
+            <h2>Loads</h2>
+            <div id="loads-container">
+                <!-- Loads will be added here dynamically -->
+            </div>
+            <button id="add-load">Add Load</button>
+
+            <button id="calculate-btn">Calculate</button>
+        </div>
+
+        <div id="results-container">
+            <h2>Results</h2>
+            <p id="results-output"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
