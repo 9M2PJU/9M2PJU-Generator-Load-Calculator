@@ -39,14 +39,18 @@ function initTheme(){
   const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme = saved || (prefersDark ? "dark" : "light");
   document.documentElement.dataset.theme = theme;
-  updateThemeIcon();
+  syncThemeLabel();
 }
-function updateThemeIcon(){ $("#themeBtn").textContent = document.documentElement.dataset.theme === "dark" ? "☀️" : "🌙"; }
+function syncThemeLabel(){
+  const dark = document.documentElement.dataset.theme === "dark";
+  $("#themeBtn").setAttribute("aria-label", dark ? "Switch to light mode" : "Switch to dark mode");
+  $("#themeBtn").setAttribute("title", dark ? "Switch to light mode" : "Switch to dark mode");
+}
 $("#themeBtn").addEventListener("click", ()=>{
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   document.documentElement.dataset.theme = next;
   localStorage.setItem("genCalc-theme", next);
-  updateThemeIcon();
+  syncThemeLabel();
 });
 
 /* ---------- Toast ---------- */
