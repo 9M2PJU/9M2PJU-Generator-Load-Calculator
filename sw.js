@@ -1,5 +1,5 @@
 /* GenCalc service worker — offline-first */
-const VERSION = "gencalc-v1";
+const VERSION = "gencalc-v2";
 const ASSETS = [
   "./",
   "./index.html",
