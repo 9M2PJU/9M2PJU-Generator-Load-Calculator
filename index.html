@@ -1,378 +1,255 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>9M2PJU Generator Load Calculator</title>
-  <meta name="description" content="9M2PJU Generator Load Calculator: choose generator type & kVA, cable, loads and fuel to estimate running kW, peak kVA, loading %, cable suitability and runtime." />
-  <meta name="keywords" content="9M2PJU, Generator Load Calculator, kVA, kW, fuel runtime, cable sizing, Malaysia, ham radio" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <style>
-    :root{
-      --primary:#4f46e5; --primary-2:#4338ca; --success:#16a34a; --danger:#dc2626;
-      --bg:#f3f4f6; --card:#ffffff; --muted:#6b7280; --text:#0f172a;
-      --radius:14px;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0}
-    body{
-      font-family:'Inter',system-ui,Segoe UI,Roboto,Arial,sans-serif;
-      background:linear-gradient(135deg,#667eea,#764ba2);
-      min-height:100vh; color:var(--text);
-    }
-    .wrap{max-width:1100px;margin:0 auto;padding:20px}
-    header h1{color:#fff;text-align:center;margin:8px 0 18px;font-size:clamp(1.4rem,3vw,2rem)}
-    .grid{display:grid; gap:16px; grid-template-columns:repeat(12,minmax(0,1fr))}
-    .card{
-      grid-column:span 12; background:var(--card); border-radius:var(--radius);
-      box-shadow:0 8px 24px rgba(0,0,0,.15); padding:18px;
-    }
-    @media (min-width:900px){ .col-6{grid-column:span 6} .col-4{grid-column:span 4} .col-8{grid-column:span 8} }
-    h2{margin:0 0 12px;font-size:1.05rem;color:#111827}
-    .row{display:grid; gap:12px; grid-template-columns:repeat(12,1fr)}
-    .control{grid-column:span 12}
-    @media(min-width:640px){ .c6{grid-column:span 6} .c4{grid-column:span 4} .c3{grid-column:span 3}}
-    label{display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:6px}
-    input,select{
-      width:100%; padding:12px 12px; border-radius:10px; border:1px solid #e5e7eb;
-      font-size:.95rem; outline:none; background:#f9fafb;
-    }
-    input:focus,select:focus{border-color:var(--primary); box-shadow:0 0 0 3px rgba(79,70,229,.15)}
-    .muted{color:var(--muted); font-size:.85rem}
-    .btn{
-      display:inline-flex; align-items:center; gap:8px;
-      background:var(--primary); color:#fff; border:none; border-radius:10px;
-      padding:12px 16px; font-weight:700; cursor:pointer; transition:.2s;
-    }
-    .btn:hover{background:var(--primary-2); transform:translateY(-1px)}
-    .btn.secondary{background:#0ea5e9}
-    .notice{padding:10px 12px; border-radius:10px; background:#f3f4f6; font-size:.9rem}
-    .notice.success{background:#ecfdf5; color:#065f46}
-    .notice.danger{background:#fef2f2; color:#991b1b}
-    /* Loads UI */
-    #loadsContainer{display:flex; flex-direction:column; gap:12px}
-    .load-card{background:#fafbff; border:1px solid #e5e7eb; border-radius:12px; padding:12px}
-    .load-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
-    .load-head .title{font-weight:700; color:#111827}
-    .remove-btn{background:transparent; border:none; color:#6b7280; font-size:20px; cursor:pointer}
-    .remove-btn:hover{color:var(--danger)}
-    .load-fields{display:grid; gap:10px; grid-template-columns:repeat(12,1fr)}
-    .load-fields .control{grid-column:span 12}
-    @media(min-width:640px){ .load-fields .c3{grid-column:span 3} .load-fields .c4{grid-column:span 4} }
-    .load-total{margin-top:6px; font-weight:600; color:#334155}
-    /* Results */
-    #resultsBox .line{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed #e5e7eb}
-    #resultsBox .line:last-child{border-bottom:0}
-    .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:.75rem; font-weight:700}
-    .tag.good{background:#dcfce7; color:#166534} .tag.bad{background:#fee2e2; color:#991b1b}
-    footer{color:#fff; text-align:center; padding:18px 10px}
-    footer a{color:#ffdf00; font-weight:800; text-decoration:none}
-    footer a:hover{text-decoration:underline}
-  </style>
+  <meta name="description" content="Size your generator: enter kVA, cable, loads and fuel to get running kW, peak kVA, loading %, cable suitability, voltage drop and runtime. Works offline." />
+  <meta name="theme-color" content="#4f46e5" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="GenCalc" />
+  <meta property="og:title" content="9M2PJU Generator Load Calculator" />
+  <meta property="og:description" content="Running kW, peak kVA, cable check, voltage drop & fuel runtime — offline-ready PWA." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
+  <script>try{var t=localStorage.getItem("genCalc-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;}catch(e){}</script>
 </head>
 <body>
-  <div class="wrap">
-    <header><h1>9M2PJU Generator Load Calculator</h1></header>
+  <a class="skip-link" href="#main">Skip to calculator</a>
+  <div class="bg-decor" aria-hidden="true"></div>
 
-    <section class="grid">
-      <!-- Generator -->
-      <div class="card col-6">
-        <h2>1) Generator</h2>
-        <div class="row">
-          <div class="control c6">
-            <label for="genType">Generator Type</label>
-            <select id="genType">
-              <option value="diesel">Diesel</option>
-              <option value="petrol">Petrol</option>
-              <option value="gas">Natural Gas</option>
-              <option value="hybrid">Hybrid/Inverter</option>
-            </select>
-            <div class="muted">Used to auto-estimate fuel burn if empty.</div>
-          </div>
-          <div class="control c6">
-            <label for="genKVA">Generator Rating (kVA)</label>
-            <select id="genKVA">
-              <option>3</option><option>5</option><option>7.5</option><option>10</option>
-              <option>12</option><option>15</option><option>20</option><option>25</option>
-              <option>30</option><option>40</option><option>50</option><option>60</option>
-              <option>80</option><option>100</option><option>150</option><option>200</option>
-            </select>
-          </div>
-          <div class="control c4">
-            <label for="pf">Power Factor (PF)</label>
-            <input type="number" id="pf" min="0.5" max="1" step="0.05" value="0.8"/>
-          </div>
-          <div class="control c4">
-            <label for="fuelAvailable">Fuel Available (L)</label>
-            <input type="number" id="fuelAvailable" min="0" step="0.1" placeholder="e.g. 40"/>
-          </div>
-          <div class="control c4">
-            <label for="burn100">Fuel Burn @100% (L/h)</label>
-            <input type="number" id="burn100" min="0" step="0.1" placeholder="auto-estimate"/>
-          </div>
-          <div class="control">
-            <div id="fuelHint" class="muted">If blank, consumption is estimated from type & kVA.</div>
-          </div>
-        </div>
+  <header class="app-header">
+    <div class="header-inner">
+      <a class="brand" href="./" aria-label="9M2PJU Generator Load Calculator home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 512 512"><polygon points="300,60 170,280 240,280 210,450 340,220 265,220" fill="#ffdf00"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>9M2PJU <span class="badge-my">🇲🇾 MY</span></strong>
+          <span>Generator Load Calculator</span>
+        </span>
+      </a>
+      <div class="header-actions">
+        <button id="installBtn" class="btn-install" hidden>⬇ Install App</button>
+        <button id="themeBtn" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
       </div>
+    </div>
+  </header>
 
-      <!-- Cable -->
-      <div class="card col-6">
-        <h2>2) Cable</h2>
-        <div class="row">
-          <div class="control c6">
-            <label for="cableMat">Material</label>
-            <select id="cableMat">
-              <option value="cu">Copper (Cu)</option>
-              <option value="al">Aluminium (Al)</option>
-            </select>
-          </div>
-          <div class="control c6">
-            <label for="cableSize">Cross-Section (mm²)</label>
-            <select id="cableSize">
-              <option value="1.5">1.5 mm²</option>
-              <option value="2.5">2.5 mm²</option>
-              <option value="4">4 mm²</option>
-              <option value="6">6 mm²</option>
-              <option value="10">10 mm²</option>
-              <option value="16">16 mm²</option>
-              <option value="25">25 mm²</option>
-              <option value="35">35 mm²</option>
-              <option value="50">50 mm²</option>
-              <option value="70">70 mm²</option>
-              <option value="95">95 mm²</option>
-              <option value="120">120 mm²</option>
-            </select>
-          </div>
-          <div class="control">
-            <div class="muted">Ampacity uses simple rule-of-thumb (single-phase, typical install). Always verify with local codes.</div>
-          </div>
-        </div>
+  <div class="install-banner" id="installBanner" hidden>
+    <div class="install-card">
+      <img src="./icons/icon-192.png" alt="App icon" width="44" height="44" />
+      <div class="grow">
+        <div class="t">Install as an app</div>
+        <div class="s">Full-screen, offline, one tap from home screen.</div>
       </div>
-
-      <!-- Loads -->
-      <div class="card col-8">
-        <h2>3) Loads</h2>
-        <div id="loadsContainer"></div>
-        <button class="btn" id="addLoadBtn">➕ Add Load</button>
-        <div id="liveTotals" class="notice" style="margin-top:10px">Add loads to see running & starting totals.</div>
-      </div>
-
-      <!-- Calculate / Results -->
-      <div class="card col-4">
-        <h2>4) Calculate & Results</h2>
-        <button class="btn secondary" id="calcBtn">🚀 Calculate</button>
-        <div id="resultsBox" style="margin-top:12px">
-          <div class="notice">Results will appear here.</div>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      Made for 🇲🇾 by <a href="https://hamradio.my" target="_blank" rel="noopener">9M2PJU</a>
-    </footer>
+      <button class="btn btn-primary btn-sm" id="installNowBtn">Install</button>
+      <button class="icon-btn" id="installDismissBtn" aria-label="Dismiss">×</button>
+    </div>
   </div>
 
-  <script>
-    // -------- Ampacity (very rough; single run; typical ambient) ------------
-    // Small sizes added. Values are approximations for quick checks.
-    const AMPACITY = {
-      cu: {1.5:15, 2.5:25, 4:32, 6:40, 10:55, 16:75, 25:100, 35:125, 50:150, 70:185, 95:225, 120:260},
-      al: {1.5:12, 2.5:20, 4:26, 6:32, 10:45, 16:60, 25:75, 35:95, 50:115, 70:140, 95:170, 120:200}
-    };
+  <main class="wrap" id="main">
+    <section class="hero">
+      <h1>Size your generator in seconds</h1>
+      <p>Pick a generator, add your loads, check cable &amp; voltage drop, and see runtime. Everything updates live and works offline.</p>
+      <ol class="steps" aria-label="Steps">
+        <li><span class="n">1</span> Generator</li>
+        <li><span class="n">2</span> Loads</li>
+        <li><span class="n">3</span> Cable &amp; supply</li>
+        <li><span class="n">4</span> Results</li>
+      </ol>
+    </section>
 
-    // -------- Fuel burn auto-estimate per kWh (heuristic) -------------------
-    // L per kWh at full load. Used only if user leaves burn100 empty.
-    const L_PER_KWH = { diesel:0.25, petrol:0.35, gas:0.30, hybrid:0.23 };
+    <div class="layout">
+      <div class="main-col">
 
-    // -------- Load presets ---------------------------------------------------
-    const PRESETS = {
-      light: { label:"💡 Lighting", unitW:20, factor:1 },
-      socket:{ label:"🔌 Socket Outlet", unitW:500, factor:1 },
-      pc:    { label:"🖥 Office Equip.", unitW:200, factor:1 },
-      ac:    { label:"❄ Air Conditioner (1.5HP)", unitW:1100, factor:3 },
-      motor: { label:"⚙ Motor (1HP)", unitW:750, factor:3.5 },
-      custom:{ label:"✏ Custom", unitW:0, factor:1 }
-    };
-
-    const loadsContainer = document.getElementById('loadsContainer');
-    const addLoadBtn = document.getElementById('addLoadBtn');
-    const calcBtn = document.getElementById('calcBtn');
-    const resultsBox = document.getElementById('resultsBox');
-    const liveTotals = document.getElementById('liveTotals');
-
-    addLoadBtn.addEventListener('click', () => loadsContainer.appendChild(makeLoadCard()));
-    // Start with one default card
-    loadsContainer.appendChild(makeLoadCard());
-
-    function makeLoadCard(){
-      const card = document.createElement('div');
-      card.className = 'load-card';
-      card.innerHTML = `
-        <div class="load-head">
-          <div class="title">Load</div>
-          <button class="remove-btn" title="Remove">×</button>
-        </div>
-        <div class="load-fields">
-          <div class="control c4">
-            <label>Type</label>
-            <select class="type">
-              ${Object.entries(PRESETS).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('')}
-            </select>
+        <!-- 1 Generator -->
+        <section class="card" aria-labelledby="h-gen">
+          <div class="card-head">
+            <span class="step-dot">1</span>
+            <div><h2 id="h-gen">Generator</h2><p class="sub">Fuel type sets the auto burn estimate. Rating sets your headroom.</p></div>
+            <div class="spacer"></div>
+            <span class="pill" id="genKWEquiv">≈ — kW</span>
           </div>
-          <div class="control c3">
-            <label>Quantity</label>
-            <input type="number" class="qty" min="1" value="1">
+
+          <div class="gen-types" role="radiogroup" aria-label="Generator type">
+            <label class="gen-type"><input type="radio" name="genType" value="diesel" checked /><span class="opt"><span class="e">🛢️</span><span class="t">Diesel</span><span class="d">0.25 L/kWh</span></span></label>
+            <label class="gen-type"><input type="radio" name="genType" value="petrol" /><span class="opt"><span class="e">⛽</span><span class="t">Petrol</span><span class="d">0.35 L/kWh</span></span></label>
+            <label class="gen-type"><input type="radio" name="genType" value="gas" /><span class="opt"><span class="e">🔥</span><span class="t">Gas</span><span class="d">0.30 L/kWh</span></span></label>
+            <label class="gen-type"><input type="radio" name="genType" value="hybrid" /><span class="opt"><span class="e">🔋</span><span class="t">Inverter</span><span class="d">0.23 L/kWh</span></span></label>
           </div>
-          <div class="control c3">
-            <label>Unit Power (W)</label>
-            <input type="number" class="unit" min="0" step="1">
+
+          <div class="row">
+            <div class="control c6">
+              <label class="lbl" for="genKVA">Rating (kVA)</label>
+              <select id="genKVA">
+                <option>3</option><option>5</option><option>7.5</option>
+                <option selected>10</option><option>12</option><option>15</option>
+                <option>20</option><option>25</option><option>30</option>
+                <option>40</option><option>50</option><option>60</option>
+                <option>80</option><option>100</option><option>150</option><option>200</option>
+              </select>
+            </div>
+            <div class="control c6">
+              <label class="lbl" for="pf">Power factor (PF)</label>
+              <div class="pf-wrap">
+                <input type="range" id="pf" min="0.5" max="1" step="0.05" value="0.8" aria-describedby="pfVal" />
+                <span class="pf-val" id="pfVal">0.80</span>
+              </div>
+              <div class="hint">Most small gensets ≈ 0.8. Motors may be lower.</div>
+            </div>
+            <div class="control c6">
+              <label class="lbl" for="fuelAvailable">Fuel available (L)</label>
+              <input type="number" id="fuelAvailable" min="0" step="0.1" placeholder="e.g. 40" inputmode="decimal" />
+            </div>
+            <div class="control c6">
+              <label class="lbl" for="burn100">Burn @100% (L/h)</label>
+              <input type="number" id="burn100" min="0" step="0.1" placeholder="auto" inputmode="decimal" />
+            </div>
+            <div class="control c12"><div class="hint" id="fuelHint">If blank, consumption is estimated from type &amp; kVA.</div></div>
           </div>
-          <div class="control c3">
-            <label>Starting Factor</label>
-            <input type="number" class="sf" min="1" step="0.1">
+        </section>
+
+        <!-- 2 Loads -->
+        <section class="card" aria-labelledby="h-loads">
+          <div class="card-head">
+            <span class="step-dot">2</span>
+            <div><h2 id="h-loads">Loads</h2><p class="sub">Tap a preset to add, then adjust qty &amp; surge factor.</p></div>
+            <div class="spacer"></div>
+            <span class="pill live" id="loadCount">0 loads</span>
           </div>
-          <div class="control">
-            <div class="load-total muted">—</div>
+
+          <div class="chips" id="quickAdd" aria-label="Quick add loads">
+            <button class="chip" data-preset="light">💡 Lighting</button>
+            <button class="chip" data-preset="socket">🔌 Socket</button>
+            <button class="chip" data-preset="pc">🖥️ Office</button>
+            <button class="chip" data-preset="fridge">🧊 Fridge</button>
+            <button class="chip" data-preset="ac">❄️ Air-cond</button>
+            <button class="chip" data-preset="pump">💧 Pump</button>
           </div>
-        </div>
-      `;
-      const type = card.querySelector('.type');
-      const qty = card.querySelector('.qty');
-      const unit = card.querySelector('.unit');
-      const sf = card.querySelector('.sf');
-      const total = card.querySelector('.load-total');
-      const removeBtn = card.querySelector('.remove-btn');
 
-      function syncPreset(){
-        const p = PRESETS[type.value];
-        unit.value = p.unitW;
-        sf.value = p.factor;
-        recalc();
-      }
-      function recalc(){
-        const q = +qty.value||0, u = +unit.value||0, f = +sf.value||1;
-        const runW = q*u;
-        const startW = runW*f;
-        total.textContent = `Total: ${runW.toFixed(0)} W (Peak: ${startW.toFixed(0)} W)`;
-        updateLiveTotals();
-      }
-      type.addEventListener('change', syncPreset);
-      [qty,unit,sf].forEach(el=>el.addEventListener('input', recalc));
-      removeBtn.addEventListener('click', ()=>{ card.remove(); updateLiveTotals(); });
+          <div id="loadsContainer"></div>
 
-      syncPreset();
-      return card;
-    }
+          <div class="toolbar">
+            <button class="btn btn-soft" id="addLoadBtn">➕ Add load</button>
+            <button class="btn btn-primary" id="calcBtn">🚀 Check sizing</button>
+          </div>
+          <div class="live-totals" id="liveTotals" role="status">Add loads to see totals.</div>
+        </section>
 
-    function sumLoads(){
-      let runW=0, peakW=0;
-      document.querySelectorAll('.load-card').forEach(card=>{
-        const q = +(card.querySelector('.qty')?.value||0);
-        const u = +(card.querySelector('.unit')?.value||0);
-        const f = +(card.querySelector('.sf')?.value||1);
-        runW += q*u;
-        peakW += q*u*f;
-      });
-      // return kW and also keep W if needed
-      return { runW, peakW, runKW: runW/1000, peakKW: peakW/1000 };
-    }
+        <!-- 3 Cable -->
+        <section class="card" aria-labelledby="h-cable">
+          <div class="card-head">
+            <span class="step-dot">3</span>
+            <div><h2 id="h-cable">Cable &amp; supply</h2><p class="sub">Ampacity is rule-of-thumb. Always verify with local codes.</p></div>
+          </div>
+          <div class="row">
+            <div class="control c6">
+              <label class="lbl" id="cableMatLabel">Copper (Cu)</label>
+              <div class="seg" id="cableMat" data-value="cu" role="group" aria-label="Cable material">
+                <button type="button" data-value="cu" aria-pressed="true">Copper</button>
+                <button type="button" data-value="al" aria-pressed="false">Aluminium</button>
+              </div>
+            </div>
+            <div class="control c6">
+              <label class="lbl">System</label>
+              <div class="seg" id="system" data-value="1p" role="group" aria-label="Supply system">
+                <button type="button" data-value="1p" aria-pressed="true">1-ph 230V</button>
+                <button type="button" data-value="3p" aria-pressed="false">3-ph 400V</button>
+              </div>
+            </div>
+            <div class="control c6">
+              <label class="lbl" for="cableSize">Cross-section (mm²)</label>
+              <select id="cableSize">
+                <option value="1.5">1.5 mm²</option><option value="2.5">2.5 mm²</option>
+                <option value="4" selected>4 mm²</option><option value="6">6 mm²</option>
+                <option value="10">10 mm²</option><option value="16">16 mm²</option>
+                <option value="25">25 mm²</option><option value="35">35 mm²</option>
+                <option value="50">50 mm²</option><option value="70">70 mm²</option>
+                <option value="95">95 mm²</option><option value="120">120 mm²</option>
+              </select>
+            </div>
+            <div class="control c6">
+              <label class="lbl" for="cableLen">One-way length (m)</label>
+              <input type="number" id="cableLen" min="0" step="1" value="20" inputmode="numeric" />
+            </div>
+            <div class="control c12"><div class="hint" id="voltHint">Single-phase 230V. Standard home / portable setup.</div></div>
+          </div>
+        </section>
 
-    function updateLiveTotals(){
-      const { runW, peakW } = sumLoads();
-      if(runW<=0){
-        liveTotals.textContent = 'Add loads to see running & starting totals.';
-      }else{
-        liveTotals.innerHTML = `Running: <b>${runW.toFixed(0)} W</b> — Peak: <b>${peakW.toFixed(0)} W</b>`;
-      }
-    }
+      </div>
 
-    calcBtn.addEventListener('click', calculate);
+      <aside class="side-col">
+        <section class="card results-card" id="resultsCard" aria-labelledby="h-res" aria-live="polite">
+          <div class="card-head">
+            <span class="step-dot">4</span>
+            <div><h2 id="h-res">Results</h2><p class="sub">Live — no need to press calculate.</p></div>
+            <div class="spacer"></div>
+            <span class="pill live">● Live</span>
+          </div>
 
-    function calculate(){
-      const genType = document.getElementById('genType').value;
-      const genKVA  = +(document.getElementById('genKVA').value||0);
-      const pf      = clamp(+(document.getElementById('pf').value||0.8), 0.5, 1);
-      const fuelL   = +(document.getElementById('fuelAvailable').value||0);
-      let burn100   = +(document.getElementById('burn100').value||0);
+          <div class="status-hero" id="statusHero">
+            <div class="gauge" aria-hidden="true">
+              <svg width="86" height="86" viewBox="0 0 86 86">
+                <circle cx="43" cy="43" r="34" fill="none" stroke="currentColor" opacity=".15" stroke-width="10"/>
+                <circle id="gaugeArc" cx="43" cy="43" r="34" fill="none" stroke="#16a34a" stroke-width="10" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="213.6"/>
+              </svg>
+              <div class="pct" id="gaugePct">—</div>
+            </div>
+            <div class="status-text">
+              <div class="k" id="statusK">No loads yet</div>
+              <div class="v" id="statusV">Add equipment</div>
+              <div class="s" id="statusS">Peak loading vs generator rating.</div>
+            </div>
+          </div>
 
-      const cableMat= document.getElementById('cableMat').value;
-      const cableSz = +(document.getElementById('cableSize').value||0);
+          <div class="meter" aria-hidden="true"><i id="meterRun" style="width:0%"></i></div>
+          <div class="hint" id="meterRunVal" style="margin:0 0 4px">0% of rating (running)</div>
 
-      const { runKW, peakKW } = sumLoads();
+          <div class="stat-grid">
+            <div class="stat"><div class="k">Running</div><div class="v" id="stRun">—</div></div>
+            <div class="stat"><div class="k">Running kVA</div><div class="v" id="stRunKva">—</div></div>
+            <div class="stat"><div class="k">Peak kW</div><div class="v" id="stPeak">—</div></div>
+            <div class="stat"><div class="k">Peak kVA</div><div class="v" id="stPeakKva">—</div></div>
+            <div class="stat"><div class="k">Current</div><div class="v" id="stAmps">—</div></div>
+            <div class="stat"><div class="k">Runtime</div><div class="v" id="stRuntime">—</div></div>
+          </div>
 
-      // Apparent power (kVA) using PF
-      const runKVA  = pf>0 ? (runKW / pf) : runKW;
-      const peakKVA = pf>0 ? (peakKW / pf) : peakKW;
+          <div class="result-lines" id="resultsBox"></div>
 
-      // Generator loading (% on kVA basis) — use PEAK for sizing check
-      const loadPctPeak = genKVA>0 ? Math.min(1, peakKVA/genKVA) : 0;
-      // For fuel consumption we use RUNNING load (average)
-      const loadPctRun  = genKVA>0 ? Math.min(1, runKVA/genKVA) : 0;
+          <div class="result-actions">
+            <button class="btn btn-ghost btn-sm" id="copyBtn">📋 Copy</button>
+            <button class="btn btn-ghost btn-sm" id="shareBtn">↗ Share</button>
+            <button class="btn btn-ghost btn-sm" id="printBtn">🖨 Print</button>
+            <button class="btn btn-ghost btn-sm" id="resetBtn">↺ Reset</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
 
-      // Cable check (single-phase approx): I = P / (V * PF)
-      const V = 230;
-      const runA = (runKW*1000)/(V*(pf||0.8));
-      const ampacity = (AMPACITY[cableMat] && AMPACITY[cableMat][cableSz]) ? AMPACITY[cableMat][cableSz] : null;
-      const cableUtil = ampacity ? (runA/ampacity)*100 : 0;
+  <div class="mobile-bar" role="status" aria-live="polite">
+    <div class="m" id="mobileSummary">Add equipment</div>
+    <button class="btn btn-primary btn-sm" id="viewResultsBtn">Results ↓</button>
+  </div>
 
-      // Fuel burn: if not given, estimate from genType, PF & generator kVA at 100%
-      // Assume usable kW at 100% ~ genKVA * PF; L/h = kW * L/kWh
-      if(!burn100 || burn100<=0){
-        const kWfull = genKVA * pf;
-        const lpkwh = L_PER_KWH[genType] ?? 0.28;
-        burn100 = kWfull * lpkwh; // L/h @100%
-      }
-      // Runtime @ running load%
-      const burnAtRun = burn100 * (loadPctRun || 0);
-      const runtimeH = (fuelL>0 && burnAtRun>0) ? (fuelL / burnAtRun) : 0;
+  <footer>
+    Made for 🇲🇾 by <a href="https://hamradio.my" target="_blank" rel="noopener">9M2PJU</a>
+    · <span id="swStatus">offline-ready</span>
+  </footer>
 
-      // Compose results
-      const lines = [];
-      lines.push(line('Running Load', `${runKW.toFixed(2)} kW`));
-      lines.push(line('Running Apparent Load', `${runKVA.toFixed(2)} kVA`));
-      lines.push(line('Peak Real Power (with starting)', `${peakKW.toFixed(2)} kW`));
-      lines.push(line('Peak Apparent Load', `${peakKVA.toFixed(2)} kVA`));
-      lines.push(line('Generator Rating', `${genKVA.toFixed(2)} kVA`));
-      lines.push(line('Power Factor (PF)', pf.toFixed(2)));
-      lines.push(line('Generator Loading (peak)', `${(loadPctPeak*100).toFixed(1)} %`,
-        peakKVA<=genKVA ? 'good':'bad'));
+  <div class="toast" id="toast" role="status"></div>
 
-      if(ampacity){
-        lines.push(line('Cable Ampacity', `${ampacity} A`));
-        lines.push(line('Estimated Running Current', `${runA.toFixed(1)} A`,
-          runA<=ampacity ? 'good':'bad'));
-        lines.push(line('Cable Utilization @running', `${cableUtil.toFixed(0)} %`,
-          cableUtil<=80 ? 'good' : (cableUtil<=100 ? 'bad' : 'bad')));
-      }else{
-        lines.push(`<div class="notice danger">Unknown ampacity for ${cableMat?.toUpperCase?.()||'?'} ${cableSz} mm²</div>`);
-      }
-
-      lines.push(line('Fuel Available', `${fuelL.toFixed(1)} L`));
-      lines.push(line('Fuel Burn @100% load', `${burn100.toFixed(2)} L/h`));
-      lines.push(line('Fuel Burn @running load', `${burnAtRun.toFixed(2)} L/h`));
-      lines.push(line('Estimated Runtime', runtimeH>0 ? `${runtimeH.toFixed(1)} h` : '—',
-        runtimeH>=2 ? 'good' : (runtimeH>0 ? 'bad' : undefined)));
-
-      resultsBox.innerHTML = `
-        <div class="line">${lines.join('</div><div class="line">')}</div>
-        ${peakKVA>genKVA ? warn('Generator undersized for peak demand. Consider larger kVA or staggered starts.') : ok('Generator is sufficient for calculated peak.')}
-        ${(ampacity && runA>ampacity) ? warn('Cable appears undersized for running current. Consider upsizing or parallel runs.') : ''}
-        ${(fuelL>0 && runtimeH<2) ? warn('Runtime is short. Add fuel or reduce load to extend operation.') : ''}
-        <div class="muted" style="margin-top:10px">Notes: Peak uses starting factors; current/ampacity are simplified single-phase estimates. Verify with local standards/codes.</div>
-      `;
-    }
-
-    function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
-
-    function line(label, value, tag){
-      const badge = tag ? `<span class="tag ${tag==='good'?'good':'bad'}">${tag==='good'?'OK':'Check'}</span>` : '';
-      return `<div style="display:flex;gap:8px;justify-content:space-between;align-items:center">
-        <span>${label}</span><span><b>${value}</b> ${badge}</span></div>`;
-    }
-    function warn(msg){ return `<div class="notice danger" style="margin-top:8px">⚠ ${msg}</div>`; }
-    function ok(msg){ return `<div class="notice success" style="margin-top:8px">✅ ${msg}</div>`; }
-  </script>
+  <script src="./app.js" defer></script>
 </body>
 </html>
