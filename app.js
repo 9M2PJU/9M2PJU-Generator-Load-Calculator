@@ -79,7 +79,7 @@ function makeLoadCard(data={}){
       <div class="control c4"><label class="lbl">Unit Power (W)</label><input type="number" class="unit" min="0" step="1" inputmode="numeric" placeholder="e.g. 500"></div>
       <div class="control c4"><label class="lbl">Starting ×</label><input type="number" class="sf" min="1" step="0.1" inputmode="decimal"></div>
       <div class="control c4"><label class="lbl">Name <span style="font-weight:400;color:var(--muted)">(optional)</span></label><input type="text" class="nm" maxlength="32" placeholder="e.g. Kitchen"></div>
-      <div class="control c4"><div class="load-total" style="margin-top:22px"><span class="lt-run">—</span></div></div>
+      <div class="control c12"><div class="load-total"><span class="lt-run">—</span></div></div>
     </div>`;
   const type = card.querySelector(".type");
   type.innerHTML = Object.entries(PRESETS).map(([k,v])=>`<option value="${k}">${v.icon} ${v.label}</option>`).join("");
@@ -354,7 +354,11 @@ function isIOS(){ return /iphone|ipad|ipod/i.test(navigator.userAgent) && !windo
 function isStandalone(){ return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone===true; }
 window.addEventListener("beforeinstallprompt", e=>{
   e.preventDefault(); deferredPrompt=e;
-  installBtn.hidden=false; banner.hidden=false;
+  installBtn.hidden=false;
+  // Auto-show the banner only on narrow screens and only if never dismissed;
+  // desktop keeps the quieter header button.
+  const dismissed = (()=>{ try{ return localStorage.getItem("genCalc-banner-dismissed")==="1"; }catch(_){ return false; } })();
+  if(!dismissed && matchMedia("(max-width: 1023px)").matches) banner.hidden=false;
 });
 async function doInstall(){
   if(deferredPrompt){
@@ -370,7 +374,10 @@ async function doInstall(){
 }
 installBtn.addEventListener("click", doInstall);
 $("#installNowBtn")?.addEventListener("click", doInstall);
-$("#installDismissBtn")?.addEventListener("click", ()=>{ banner.hidden=true; });
+$("#installDismissBtn")?.addEventListener("click", ()=>{
+  banner.hidden=true;
+  try{ localStorage.setItem("genCalc-banner-dismissed","1"); }catch(e){}
+});
 window.addEventListener("appinstalled", ()=>{ banner.hidden=true; installBtn.hidden=true; toast("App installed ✓"); });
 if(isStandalone()){ installBtn.hidden=true; banner.hidden=true; }
 else if(isIOS() && !localStorage.getItem("genCalc-ios-hint")){
